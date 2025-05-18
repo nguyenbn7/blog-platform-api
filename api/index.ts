@@ -1,1 +1,3 @@
-export { default as app } from "../src/app";
+import app from "../src/app";
+
+module.exports = app;
