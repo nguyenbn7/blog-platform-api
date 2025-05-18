@@ -1,6 +1,7 @@
 {
   "name": "blog-api",
   "type": "module",
+  "version": "0.0.1",
   "description": "Inspired from https://roadmap.sh/projects/blogging-platform-api",
   "private": true,
   "license": "MIT",
