@@ -9,7 +9,7 @@ const app = new Hono()
   .use(requestId())
   .get("/", (c) => {
     return c.json({
-      message: "Hello from Blog API",
+      message: "Blog Platform API says Hello World",
     });
   })
   .route("/api", api);
