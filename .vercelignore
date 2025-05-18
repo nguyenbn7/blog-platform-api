@@ -1,5 +1,4 @@
 .env.example
-tsconfig.json
 vitest.config.ts
 routes.http
 README.md
@@ -7,3 +6,4 @@ LICENSE
 drizzle.config.ts
 tests
 .github
+bun.lock
