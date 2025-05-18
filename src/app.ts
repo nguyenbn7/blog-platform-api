@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { requestId } from "hono/request-id";
 
-import api from "./router";
+import api from "./router.js";
 
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 

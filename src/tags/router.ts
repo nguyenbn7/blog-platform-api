@@ -1,15 +1,15 @@
 import { Hono } from "hono";
 
-import { tagSchema } from "./schema";
+import { tagSchema } from "./schema.js";
 import {
   createTag,
   deleteTag,
   getTags,
   getTagById,
   updateTag,
-} from "./repository";
+} from "./repository.js";
 
-import { zValidator } from "../lib/middleware";
+import { zValidator } from "../lib/middleware.js";
 
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 

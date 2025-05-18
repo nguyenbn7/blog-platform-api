@@ -1,15 +1,15 @@
 import { Hono } from "hono";
 
-import { categorySchema } from "./schema";
+import { categorySchema } from "./schema.js";
 import {
   createCategory,
   deleteCategory,
   getCategories,
   getCategoryById,
   updateCategory,
-} from "./repository";
+} from "./repository.js";
 
-import { zValidator } from "../lib/middleware";
+import { zValidator } from "../lib/middleware.js";
 
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 

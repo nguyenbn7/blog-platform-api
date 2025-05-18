@@ -1,14 +1,14 @@
 import type { DatabaseError } from "pg-protocol";
 
-import db from "../lib/database";
+import db from "../lib/database/index.js";
 import {
   categoryTable,
   postsToTags,
   postTable,
   tagTable,
-} from "../lib/database/schema";
-import { logDbError } from "../lib/database/error";
-import { normalizeString } from "../lib";
+} from "../lib/database/schema.js";
+import { logDbError } from "../lib/database/error.js";
+import { normalizeString } from "../lib/index.js";
 import { eq, getTableColumns, sql } from "drizzle-orm";
 import slug from "slug";
 

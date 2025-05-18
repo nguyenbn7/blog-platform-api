@@ -1,15 +1,15 @@
 import { Hono } from "hono";
 
-import { postSchema } from "./schema";
+import { postSchema } from "./schema.js";
 import {
   createPost,
   deletePost,
   getPostById,
   getPosts,
   updatePost,
-} from "./repository";
+} from "./repository.js";
 
-import { zValidator } from "../lib/middleware";
+import { zValidator } from "../lib/middleware.js";
 
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 

@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx",
-    "esModuleInterop": true,
-    "strict": true,
     "target": "ESNext",
-    "module": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "esModuleInterop": true,
     "skipLibCheck": true,
-    "moduleResolution": "node"
+    "strict": true,
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
   },
   "exclude": [
     "node_modules"

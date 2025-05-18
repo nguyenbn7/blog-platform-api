@@ -1,9 +1,9 @@
 import type { DatabaseError } from "pg-protocol";
 
-import db from "../lib/database";
-import { tagTable } from "../lib/database/schema";
-import { logDbError } from "../lib/database/error";
-import { normalizeString } from "../lib";
+import db from "../lib/database/index.js";
+import { tagTable } from "../lib/database/schema.js";
+import { logDbError } from "../lib/database/error.js";
+import { normalizeString } from "../lib/index.js";
 import { eq, getTableColumns } from "drizzle-orm";
 
 const { normalizedName, ...columns } = getTableColumns(tagTable);
