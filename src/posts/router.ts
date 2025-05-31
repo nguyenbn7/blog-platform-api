@@ -18,7 +18,14 @@ const app = new Hono()
     const posts = await getPosts();
 
     return c.json({
-      posts,
+      posts: posts.map((post) => {
+        const { postsToTags, category, ...p } = post;
+        return {
+          ...p,
+          category: category?.name ?? null,
+          tags: postsToTags.map((t) => t.tag.name),
+        };
+      }),
     });
   })
   .get("/:id", async (c) => {
@@ -54,13 +61,15 @@ const app = new Hono()
     });
   })
   .post("/", zValidator("json", postSchema), async (c) => {
-    const { title, categoryId, content, published } = c.req.valid("json");
+    const { title, categoryId, content, published, tagIds } =
+      c.req.valid("json");
 
     const { data: post, errorCode } = await createPost({
       title,
       categoryId,
       content,
       published,
+      tagIds,
     });
 
     if (errorCode) {
@@ -102,7 +111,8 @@ const app = new Hono()
   })
   .put("/:id", zValidator("json", postSchema.partial()), async (c) => {
     const { id } = c.req.param();
-    const { title, categoryId, content, published } = c.req.valid("json");
+    const { title, categoryId, content, published, tagIds } =
+      c.req.valid("json");
 
     const { data: existedPost, errorCode: getPostErrorCode } =
       await getPostById({ id });
@@ -138,6 +148,7 @@ const app = new Hono()
             categoryId === undefined ? existedPost.categoryId : categoryId,
           published:
             published === undefined ? existedPost.published : published,
+          tagIds,
         }
       );
 

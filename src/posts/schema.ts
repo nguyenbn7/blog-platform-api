@@ -5,10 +5,11 @@ export const postSchema = z.object({
     .string({ message: "Title is required" })
     .trim()
     .min(1, "Title is empty or/and contains whitespaces")
-    .max(255, "Title maximum length is 255 charaters"),
+    .max(255, "Title maximum length is 255 characters"),
   content: z
     .string({ message: "Content is required" })
     .min(1, "Content is required"),
   categoryId: z.string().uuid().optional().nullable().default(null),
   published: z.boolean().default(false),
+  tagIds: z.string().array().default([]),
 });

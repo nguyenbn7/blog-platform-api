@@ -9,64 +9,40 @@ import {
 } from "../lib/database/schema.js";
 import { logDbError } from "../lib/database/error.js";
 import { normalizeString } from "../lib/index.js";
-import { eq, getTableColumns, sql } from "drizzle-orm";
+import { eq, getTableColumns, inArray } from "drizzle-orm";
 import slug from "slug";
 
 const { normalizedTitle, categoryId, ...columns } = getTableColumns(postTable);
 
 export async function getPosts() {
-  // return db.query.postTable.findMany({
-  //   with: {
-  //     category: {
-  //       columns: {
-  //         name: true,
-  //       },
-  //     },
-  //     postsToTags: {
-  //       columns: {},
-  //       with: {
-  //         tag: {
-  //           columns: {
-  //             name: true,
-  //           },
-  //         },
-  //       },
-  //     },
-  //   },
-  //   columns: {
-  //     id: true,
-  //     title: true,
-  //     slug: true,
-  //     published: true,
-  //     createdAt: true,
-  //     updatedAt: true,
-  //     content: true,
-  //   },
-  // });
-  // const subquery = db
-  //   .select({ name: tagTable.name, postId: postsToTags.postId })
-  //   .from(tagTable)
-  //   .innerJoin(postsToTags, eq(tagTable.id, postsToTags.tagId))
-  //   .as("sq");
-
-  // return db
-  //   .select({
-  //     ...columns,
-  //     category: categoryTable.name,
-  //     tags: subquery.name ?? [],
-  //   })
-  //   .from(postTable)
-  //   .leftJoin(categoryTable, eq(postTable.categoryId, categoryTable.id))
-  //   .leftJoin(subquery, eq(postTable.id, subquery.postId));
-
-  // TODO: get tags
-  return db
-    .select({
-      ...columns,
-      category: categoryTable.name,
-    })
-    .from(postTable)
-    .leftJoin(categoryTable, eq(postTable.categoryId, categoryTable.id));
+  return db.query.postTable.findMany({
+    with: {
+      category: {
+        columns: {
+          name: true,
+        },
+      },
+      postsToTags: {
+        columns: {},
+        with: {
+          tag: {
+            columns: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+    columns: {
+      id: true,
+      title: true,
+      slug: true,
+      published: true,
+      createdAt: true,
+      updatedAt: true,
+      content: true,
+    },
+  });
 }
 
 type GetPostByIdErrorCode = "post_not_found" | "cannot_get_post";
@@ -94,8 +70,14 @@ export async function getPostById(searchParams: { id: string }) {
       throw error;
     }
 
+    const tags = await db
+      .select({ name: tagTable.name })
+      .from(tagTable)
+      .innerJoin(postsToTags, eq(postsToTags.tagId, tagTable.id))
+      .where(eq(postsToTags.postId, post.id));
+
     return {
-      data: post,
+      data: { ...post, tags: tags.map((t) => t.name) },
       errorCode: null,
     };
   } catch (e) {
@@ -130,8 +112,9 @@ export async function createPost(data: {
   content: string;
   categoryId?: string | null;
   published?: boolean;
+  tagIds: string[];
 }) {
-  const { title, content, categoryId, published } = data;
+  const { title, content, categoryId, published, tagIds } = data;
 
   try {
     const [post] = await db
@@ -160,9 +143,25 @@ export async function createPost(data: {
         errorCode: null,
       };
     }
+    let tags: { id: string; name: string }[] = [];
+
+    if (tagIds.length > 0) {
+      const selectedTags = await db
+        .select({ id: tagTable.id, name: tagTable.name })
+        .from(tagTable)
+        .where(inArray(tagTable.id, tagIds));
+
+      await db
+        .insert(postsToTags)
+        .values(
+          selectedTags.map((tag) => ({ postId: post.id, tagId: tag.id }))
+        );
+
+      tags = selectedTags;
+    }
 
     return {
-      data: { ...post, category: null },
+      data: { ...post, category: null, tags: tags.map((t) => t.name) },
       errorCode: null,
     };
   } catch (e) {
@@ -203,11 +202,12 @@ export async function updatePost(
     content: string;
     categoryId: string | null;
     published: boolean | null;
+    tagIds: string[] | undefined;
   }
 ) {
   const { id } = searchParams;
 
-  const { title, content, categoryId, published } = data;
+  const { title, content, categoryId, published, tagIds } = data;
 
   try {
     const [post] = await db
@@ -226,6 +226,26 @@ export async function updatePost(
         categoryId: postTable.categoryId,
       });
 
+    if (tagIds) {
+      await db.delete(postsToTags).where(eq(postsToTags.postId, post.id));
+    }
+    let tags: { id: string; name: string }[] = [];
+
+    if (tagIds && tagIds.length > 0) {
+      const selectedTags = await db
+        .select({ id: tagTable.id, name: tagTable.name })
+        .from(tagTable)
+        .where(inArray(tagTable.id, tagIds));
+
+      await db
+        .insert(postsToTags)
+        .values(
+          selectedTags.map((tag) => ({ postId: post.id, tagId: tag.id }))
+        );
+
+      tags = selectedTags;
+    }
+
     if (post.categoryId) {
       const [category] = await db
         .select({ name: categoryTable.name })
@@ -233,7 +253,11 @@ export async function updatePost(
         .where(eq(categoryTable.id, post.categoryId));
 
       return {
-        data: { ...post, category: category.name },
+        data: {
+          ...post,
+          category: category.name,
+          tags: tags.map((t) => t.name),
+        },
         errorCode: null,
       };
     }

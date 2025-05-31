@@ -43,7 +43,7 @@ POST {{baseUrl}}/api/tags HTTP/1.1
 content-type: application/json
 
 {
-    "name": "Tech"
+    "name": "Tips"
 }
 
 ###
@@ -87,7 +87,8 @@ content-type: application/json
 {
     "title": "My 2nd Blog Post",
     "content": "This is the updated content of my first blog post.", 
-    "categoryId": "c7688de6-915c-4ab9-b760-a016b48727d4"
+    "categoryId": "c7688de6-915c-4ab9-b760-a016b48727d4",
+    "tagIds": ["4520fdde-0e2e-471b-b34e-d432df01c3a7", "82782de7-ee25-443e-a7dd-a2df3dd8332b"]
 }
 
 ###
@@ -96,7 +97,7 @@ GET {{baseUrl}}/api/posts HTTP/1.1
 
 ###
 # @name get_post
-GET {{baseUrl}}/api/posts/7a80695f-3cbb-46a8-959e-66c8731daa44 HTTP/1.1
+GET {{baseUrl}}/api/posts/a1c4e1a3-c1c7-4b85-a2d7-5a012810a1fc HTTP/1.1
 
 ###
 # @name delete_post
